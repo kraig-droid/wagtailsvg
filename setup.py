@@ -26,7 +26,7 @@ setup(
         'wagtail-generic-chooser>=0.6'
     ],
     platforms=['linux'],
-    packages=find_packages(),
+    packages=find_packages(exclude=["tests", "tests.*"]),
     include_package_data=True,
     classifiers=[
         'Environment :: Web Environment',
