@@ -12,9 +12,9 @@ try:
     from wagtail.admin.panels import FieldPanel
 except ImportError:
     from wagtail.models import CollectionMember
-    from wagtail.admin.panels import TabbedInterface
-    from wagtail.admin.panels import ObjectList
-    from wagtail.admin.panels import FieldPanel
+    from wagtail.admin.edit_handlers import TabbedInterface
+    from wagtail.admin.edit_handlers import ObjectList
+    from wagtail.admin.edit_handlers import FieldPanel
 
 from taggit.managers import TaggableManager
 
