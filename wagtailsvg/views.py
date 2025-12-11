@@ -1,39 +1,40 @@
+from functools import cached_property
 from wagtailsvg.models import Svg
 from django.utils.translation import gettext_lazy as _
-from generic_chooser.views import \
-    ModelChooserViewSet, \
-    ChooserListingTabMixin, \
-    ModelChooserMixin
+from wagtail.admin.viewsets.chooser import ChooserViewSet
+from wagtail.admin.views.generic.chooser import ChooseView
 
 
-class SvgChooserListingTab(ChooserListingTabMixin):
-    results_template = 'wagtailsvg/_results.html'
+class SvgChooseView(ChooseView):
+    """Custom choose view to include preview_url in response data."""
 
-    def get_row_data(self, item):
-        return {
-            'choose_url': self.get_chosen_url(item),
-            'title': item.title,
-            'url': item.url,
-        }
-
-
-class SvgModelChooserMixin(ModelChooserMixin):
     def get_chosen_response_data(self, item):
+        """Override to include the preview_url in the modal response."""
         response_data = super().get_chosen_response_data(item)
-        response_data['preview_url'] = item.file.url
+        response_data['preview_url'] = item.url
         return response_data
 
-    def get_object_list(self, search_term=None, **kwargs):
-        if search_term:
-            return Svg.objects.filter(title__icontains=search_term)
-        return self.get_unfiltered_object_list()
 
-
-class SvgChooserViewSet(ModelChooserViewSet):
+class SvgChooserViewSet(ChooserViewSet):
     model = Svg
     icon = 'image'
-    page_title = _("Choose an SVG")
-    listing_tab_mixin_class = SvgChooserListingTab
-    chooser_mixin_class = SvgModelChooserMixin
-    edit_item_url_name = 'wagtailsvg_svg_modeladmin_edit'
+    choose_one_text = _("Choose an SVG")
+    choose_another_text = _("Choose another SVG")
+    edit_item_text = _("Edit this SVG")
     per_page = 10
+    choose_view_class = SvgChooseView
+
+    @cached_property
+    def widget_class(self):
+        """Use custom widget that includes preview_url."""
+        from wagtailsvg.widgets import AdminSvgChooser
+        return AdminSvgChooser
+
+    def get_object_list(self, search_term=None, **kwargs):
+        """Custom search implementation to filter by title."""
+        objects = super().get_object_list(**kwargs)
+
+        if search_term:
+            objects = objects.filter(title__icontains=search_term)
+
+        return objects

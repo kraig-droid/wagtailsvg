@@ -43,6 +43,12 @@ Can be used like this :
         ]
 
 
+Requirements
+############
+
+- Wagtail >= 5.2
+- Django >= 4.1.7
+
 Setup
 #####
 
@@ -57,7 +63,6 @@ Add these to django apps installed :
     INSTALLED_APPS = [
         'wagtailsvg',
         'wagtail_modeladmin',
-        'generic_chooser',
         ...
     ]
 

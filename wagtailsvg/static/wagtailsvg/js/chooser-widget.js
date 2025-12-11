@@ -1,90 +1,46 @@
-function ChooserWidget(id, opts) {
-    /*
-    id = the ID of the HTML element where chooser behaviour should be attached
-    opts = dictionary of configuration options, which may include:
-        modalWorkflowResponseName = the response identifier returned by the modal workflow to
-            indicate that an item has been chosen. Defaults to 'chosen'.
-    */
+/*
+ * Custom chooser widget for SVG files that extends Wagtail's BaseChooser
+ * to handle the preview_url field for displaying SVG previews.
+ */
 
-    opts = opts || {};
-    var self = this;
+(function() {
+    'use strict';
 
-    this.id = id;
-    this.chooserElement = $('#' + id + '-chooser');
-    this.titleElement = this.chooserElement.find('.title');
-    this.previewUrlElement = this.chooserElement.find('.preview-url');
-    this.inputElement = $('#' + id);
-    this.editLinkElement = this.chooserElement.find('.edit-link');
-    this.editLinkWrapper = this.chooserElement.find('.edit-link-wrapper');
-    if (!this.editLinkElement.attr('href')) {
-        this.editLinkWrapper.hide();
-    }
-    this.chooseButton = $('.action-choose', this.chooserElement);
-    this.idForLabel = null;
+    class AdminSvgChooser extends window.wagtail.widgets.ChooserWidget {
+        /*
+         * Extends Wagtail's ChooserWidget to handle preview_url for SVG previews
+         */
 
-    this.modalResponses = {};
-    this.modalResponses[opts.modalWorkflowResponseName || 'chosen'] = function(data) {
-        self.setState({
-            'value': data.id,
-            'title': data.string,
-            'edit_item_url': data.edit_link,
-            'preview_url': data.preview_url,
-        });
-        self.inputElement.trigger('change');
-    };
-
-    this.chooseButton.on('click', function() {
-        self.openModal();
-    });
-
-    $('.action-clear', this.chooserElement).on('click', function() {
-        self.setState(null);
-    });
-}
-
-ChooserWidget.prototype.getModalURL = function() {
-    return this.chooserElement.data('choose-modal-url');
-};
-
-ChooserWidget.prototype.openModal = function() {
-    ModalWorkflow({
-        url: this.getModalURL(),
-        onload: GENERIC_CHOOSER_MODAL_ONLOAD_HANDLERS,
-        responses: this.modalResponses
-    });
-};
-
-ChooserWidget.prototype.setState = function(newState) {
-    if (newState && newState.value !== null && newState.value !== '') {
-        this.inputElement.val(newState.value);
-        this.titleElement.text(newState.title);
-        this.previewUrlElement.attr('src', newState.preview_url);
-        this.chooserElement.removeClass('blank');
-        if (newState.edit_item_url) {
-            this.editLinkElement.attr('href', newState.edit_item_url);
-            this.editLinkWrapper.show();
-        } else {
-            this.editLinkWrapper.hide();
+        constructor(html, idPattern) {
+            super(html, idPattern);
+            // Find the preview image element
+            this.previewElement = this.chooserElement.querySelector('.preview-url');
         }
-    } else {
-        this.inputElement.val('');
-        this.chooserElement.addClass('blank');
+
+        getStateFromHTML() {
+            /*
+             * Extract the current state from the HTML, including the preview_url
+             */
+            const state = super.getStateFromHTML();
+            if (this.previewElement) {
+                state.preview_url = this.previewElement.getAttribute('src');
+            }
+            return state;
+        }
+
+        renderState(newState) {
+            /*
+             * Update the widget display with new state, including the preview image
+             */
+            super.renderState(newState);
+
+            // Update the preview image if we have a preview element
+            if (this.previewElement && newState && newState.preview_url) {
+                this.previewElement.setAttribute('src', newState.preview_url);
+            }
+        }
     }
-};
 
-ChooserWidget.prototype.getState = function() {
-    return {
-        'value': this.inputElement.val(),
-        'title': this.titleElement.text(),
-        'edit_item_url': this.editLinkElement.attr('href'),
-        'preview_url': this.previewUrlElement.attr('src'),
-    };
-};
-
-ChooserWidget.prototype.getValue = function() {
-    return this.inputElement.val();
-};
-
-ChooserWidget.prototype.focus = function() {
-    this.chooseButton.focus();
-}
+    // Register the widget with Wagtail's telepath system
+    window.telepath.register('wagtailsvg.widgets.AdminSvgChooser', AdminSvgChooser);
+})();
