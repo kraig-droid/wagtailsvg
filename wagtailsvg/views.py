@@ -23,18 +23,3 @@ class SvgChooserViewSet(ChooserViewSet):
     edit_item_text = _("Edit this SVG")
     per_page = 10
     choose_view_class = SvgChooseView
-
-    @cached_property
-    def widget_class(self):
-        """Use custom widget that includes preview_url."""
-        from wagtailsvg.widgets import AdminSvgChooser
-        return AdminSvgChooser
-
-    def get_object_list(self, search_term=None, **kwargs):
-        """Custom search implementation to filter by title."""
-        objects = super().get_object_list(**kwargs)
-
-        if search_term:
-            objects = objects.filter(title__icontains=search_term)
-
-        return objects
