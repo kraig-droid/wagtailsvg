@@ -11,7 +11,7 @@ class AdminSvgChooser(BaseChooser):
 
     template_name = 'wagtailsvg/widgets/chooser.html'
     chooser_modal_url_name = 'svg_chooser:choose'
-    model = 'wagtailsvg.Svg'
+    model = Svg
 
     def get_value_data_from_instance(self, instance):
         """
@@ -24,6 +24,14 @@ class AdminSvgChooser(BaseChooser):
         else:
             data['preview_url'] = None
         return data
+
+    def get_context(self, name, value_data, attrs):
+        """
+        Override to include preview_url in the template context.
+        """
+        context = super().get_context(name, value_data, attrs)
+        context["preview_url"] = value_data.get("preview_url") if value_data else None
+        return context
 
     @property
     def media(self):
