@@ -1,5 +1,12 @@
 {% extends 'wagtailadmin/widgets/chooser.html' %}
+{% load wagtailadmin_tags %}
 
-{% block chosen_state_view %}
-    <img class="preview-url" style="height: 65px;" src="{{ preview_url }}" alt="{{ title }}">
-{% endblock %}
+{% block chosen_icon %}
+    <div class="chooser__preview" role="presentation">
+        {% if preview_url %}
+            <img class="preview-url" style="height: 65px;" src="{{ preview_url }}" alt="{{ title }}">
+        {% else %}
+            {% icon name="image" classname="default" %}
+        {% endif %}
+    </div>
+{% endblock chosen_icon %}
