@@ -11,6 +11,7 @@ class AdminSvgChooser(BaseChooser):
 
     template_name = 'wagtailsvg/widgets/chooser.html'
     chooser_modal_url_name = 'svg_chooser:choose'
+    model = 'wagtailsvg.Svg'
 
     def get_value_data_from_instance(self, instance):
         """
