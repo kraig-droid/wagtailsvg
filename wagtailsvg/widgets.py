@@ -10,6 +10,7 @@ class AdminSvgChooser(BaseChooser):
     """Custom chooser widget for SVG files that includes preview URL."""
 
     template_name = 'wagtailsvg/widgets/chooser.html'
+    chooser_modal_url_name = 'svg_chooser:choose'
 
     def get_value_data_from_instance(self, instance):
         """
